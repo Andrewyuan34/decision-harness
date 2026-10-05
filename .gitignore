@@ -1,0 +1,7 @@
+node_modules/
+.decision-harness/
+coverage/
+*.tgz
+work/
+tmp/
+.DS_Store
