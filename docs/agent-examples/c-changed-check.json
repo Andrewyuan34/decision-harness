@@ -1,0 +1,61 @@
+{
+  "ok": false,
+  "stage": "ready",
+  "diagnostics": [
+    {
+      "code": "ASSUMPTION",
+      "severity": "warning",
+      "path": "/assumptions",
+      "message": "开发语言和运行时尚未决定；Node.js 22.23.2 仅作为已查证的具体依赖示例。 Impact: 不能把当前执行工具的 Node 版本当作用户产品已经选定的技术栈。"
+    },
+    {
+      "code": "ASSUMPTION",
+      "severity": "warning",
+      "path": "/assumptions",
+      "message": "数据几千条已知，但总字节数、标签结构、中文全文搜索需求和更新频率未知。 Impact: 不能仅凭条数给出速度结论；需要真实样本验证查询与保存时间。"
+    },
+    {
+      "code": "ASSUMPTION",
+      "severity": "warning",
+      "path": "/assumptions",
+      "message": "暂按桌面界面和导入程序都由用户控制、可以遵循同一保存协议；尚未核对实际程序。 Impact: 如果某个程序会绕过协议直接覆盖文件或数据库，方案层面的协调不能保证不丢更新。"
+    },
+    {
+      "code": "MISSING_ASSESSMENT",
+      "severity": "error",
+      "path": "/assessments",
+      "message": "Missing json-file × concurrent-updates; unknown with a reason is valid."
+    },
+    {
+      "code": "MISSING_CONSTRAINT_CHECK",
+      "severity": "error",
+      "path": "/constraintChecks",
+      "message": "Missing json-file × concurrent-no-lost-update."
+    },
+    {
+      "code": "MISSING_ASSESSMENT",
+      "severity": "error",
+      "path": "/assessments",
+      "message": "Missing sqlite × concurrent-updates; unknown with a reason is valid."
+    },
+    {
+      "code": "MISSING_CONSTRAINT_CHECK",
+      "severity": "error",
+      "path": "/constraintChecks",
+      "message": "Missing sqlite × concurrent-no-lost-update."
+    },
+    {
+      "code": "STALE_RECOMMENDATION",
+      "severity": "error",
+      "path": "/recommendation",
+      "message": "Decision context or analysis changed; revisit the recommendation."
+    },
+    {
+      "code": "UNRESOLVED_UNCERTAINTY",
+      "severity": "warning",
+      "path": "/recommendation",
+      "message": "Selected alternatives have recorded uncertainty. Explain the tradeoff and what remains to verify."
+    }
+  ],
+  "limitation": "Checks recorded structure, coverage and staleness only; does not verify factual truth, completeness of human values, or research quality. A recheck is an explicit acknowledgement, not an independent experiment."
+}

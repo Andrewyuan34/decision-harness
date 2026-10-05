@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "decision-harness",
+  "version": "0.1.0",
+  "description": "Goal-first criteria discovery, evidence-backed comparison and local revision tools for an existing Agent.",
+  "author": { "name": "Andrewyuan34", "url": "https://github.com/Andrewyuan34" },
+  "repository": "https://github.com/Andrewyuan34/decision-harness",
+  "license": "MIT"
+}

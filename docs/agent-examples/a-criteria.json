@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "id": "notes-criteria",
+  "revision": 1,
+  "createdAt": "2026-10-05T07:13:02.947Z",
+  "updatedAt": "2026-10-05T07:13:02.947Z",
+  "title": "每周五小时的阅读笔记工具：先确定判断标准",
+  "prompt": "我想自己做个减少查找阅读笔记时间的小工具。我每周大概只能花五小时，不懂怎么定判断标准。先帮我把标准想清楚，暂时不要替我选项目，也不用做审核页面。",
+  "question": "将来怎样判断一个阅读笔记小工具方向值得自己开始，并能在每周约五小时内持续推进？",
+  "mode": "criteria",
+  "domain": "general",
+  "objectives": [
+    {
+      "id": "find-faster",
+      "text": "减少查找阅读笔记的时间",
+      "origin": "user"
+    },
+    {
+      "id": "solo-feasible",
+      "text": "自己完成并在每周约五小时的投入内推进",
+      "origin": "user"
+    },
+    {
+      "id": "judge-clearly",
+      "text": "得到自己能理解、能用来判断的标准",
+      "origin": "user"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "weekly-budget",
+      "text": "每周大概五小时是规划预算，估计应包含学习、开发、排错与维护；不是精确截止日期。",
+      "kind": "preference",
+      "origin": "user"
+    },
+    {
+      "id": "criteria-only",
+      "text": "本轮只形成标准，不选择项目，不制作审核页面。",
+      "kind": "hard",
+      "origin": "user"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "existing-notes",
+      "text": "暂按已有一些阅读笔记、查找动作会重复发生来设计标准；尚不清楚文件格式和目前查找方法。",
+      "impact": "开始比较项目之前，用几条真实查找任务及现有文件补齐，不把假设当成已证实的痛点规模。"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "retrieval-result",
+      "title": "找得更快，而且找到的是需要的那条",
+      "description": "比较真实查找任务的用时、是否找到正确笔记及是否能返回原文；速度与正确性一起看。",
+      "objectiveIds": [
+        "find-faster",
+        "judge-clearly"
+      ],
+      "question": "先记录几次真实查找的目标、用时、成败，再用同样任务试小版本；哪些变快，哪些仍找不到？",
+      "rationale": "从用户想减少查找时间出发，再用库中的验证提示补足正确性；不以页面能打开代替有用。",
+      "status": "adopted",
+      "origin": "library",
+      "catalogId": "general-verification",
+      "catalogVersion": "0.1.0"
+    },
+    {
+      "id": "first-useful-scope",
+      "title": "首个有用版本能分成小块完成",
+      "description": "只列跑通一次真实查找必须做的事，并包含学习、准备资料、集成与排错。",
+      "objectiveIds": [
+        "solo-feasible"
+      ],
+      "question": "下一次五小时能交付哪个可试用的小结果？最不确定的工作是什么，如何先小试？",
+      "rationale": "采用范围条目，但不照搬两周等示例期限；每周五小时不等于总共五小时。",
+      "status": "adopted",
+      "origin": "library",
+      "catalogId": "general-solo-scope",
+      "catalogVersion": "0.1.0"
+    },
+    {
+      "id": "net-time",
+      "title": "省下的时间没有被整理和录入抵消",
+      "description": "把平日查找节省的时间与额外录入、打标签、修正结果的时间一起记录。",
+      "objectiveIds": [
+        "find-faster",
+        "judge-clearly"
+      ],
+      "question": "试用一段时间后，查找少花了多少时间，额外整理多花了多少时间，使用频率足不足以值得继续？",
+      "rationale": "这是从减少查找时间推导的本次标准。与查找速度区分：前者看一次查找，这条看持续使用净收益；不重复打分。",
+      "status": "adopted",
+      "origin": "agent"
+    },
+    {
+      "id": "maintenance",
+      "title": "下周还愿意继续使用和维护",
+      "description": "记录持续使用时需要手工处理的事，以及出错后恢复笔记访问的办法。",
+      "objectiveIds": [
+        "solo-feasible"
+      ],
+      "question": "笔记新增、移动、工具出错时，要做哪些维护？是否挤掉每周五小时的大部分时间？",
+      "rationale": "用库补查初次做成之外的长期负担，不要求提前建设完整维护平台。",
+      "status": "adopted",
+      "origin": "library",
+      "catalogId": "general-maintenance",
+      "catalogVersion": "0.1.0"
+    },
+    {
+      "id": "existing-input",
+      "title": "能用现有笔记开始小试",
+      "description": "确认现有笔记位置和可读取格式，不把换笔记系统当成默认前提。",
+      "objectiveIds": [
+        "solo-feasible",
+        "find-faster"
+      ],
+      "question": "现有的几份笔记能否直接拿来试？需要迁移或清洗多少，是否妨碍继续原来的阅读习惯？",
+      "rationale": "用户未说明格式，因此先作为调查问题保留；不擅自选笔记软件或索引技术。",
+      "status": "adopted",
+      "origin": "agent"
+    }
+  ],
+  "alternatives": [],
+  "evidence": [],
+  "assessments": [],
+  "constraintChecks": [],
+  "recommendation": null,
+  "reviews": []
+}

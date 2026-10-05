@@ -1,0 +1,11 @@
+{
+  "title": "示例：先整理小工具的判断标准",
+  "prompt": "我想做一个自己能维护的小工具，先帮我弄清怎么判断方向，不用现在替我选项目。",
+  "question": "怎样判断一个小工具方向是否适合我继续调查？",
+  "mode": "criteria",
+  "domain": "general",
+  "objectives": [
+    { "id": "maintainable", "text": "自己能够持续维护", "origin": "user" },
+    { "id": "learn-criteria", "text": "先明确判断方法", "origin": "user" }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "date": "2026-10-05",
+  "runtime": "Windows, Node.js 22.23.2",
+  "method": "A delegated Agent that did not implement this project read only the delivered Skill and its referenced guides, then used the CLI and actual official web materials. It retained earlier unrelated project-history context; this was not a blind randomized experiment. The parent inspected saved records, diagnostics and changes. Assertions in test/behavior-artifacts.test.mjs preserve observed outcomes; they are not a substitute for semantic review.",
+  "hostScope": "Manual Skill loading and local command execution in the Codex agent environment. Plugin installation UI, other hosts and marketplace installation were not tested.",
+  "cases": [
+    {
+      "id": "A-criteria",
+      "status": "passed",
+      "task": "An individual wants a tool to reduce time spent finding reading notes, has about five hours per week, and requests criteria only.",
+      "observations": [
+        "The original prompt and explicit user goals are retained. Five criteria map to goals, with adapted library entries and Agent-authored additions.",
+        "The weekly time budget is treated as an approximate planning preference rather than an invented deadline.",
+        "No alternatives, recommendation or human-review stage were imposed. The ready check passed with an explicit assumption warning."
+      ],
+      "artifacts": [
+        "docs/agent-examples/a-criteria.json",
+        "docs/agent-examples/a-criteria-check.json"
+      ]
+    },
+    {
+      "id": "B-screen",
+      "status": "passed",
+      "task": "Compare one JSON file and SQLite for a personal local reading-note index: offline, easy backup, few dependencies, initially one writer and thousands of notes.",
+      "observations": [
+        "Two alternatives were compared against five adopted criteria using ten assessments and eight constraint checks. Seven official web sources and the provided brief were recorded.",
+        "Statements distinguish fact, judgment and estimate. Actual workload performance, Chinese text search and restore experience remained unknown.",
+        "Both candidates were conditionally retained without a numerical score. Backup and transaction mechanisms were not described as verified behavior of an implemented application. The ready check passed; no storage benchmark was run."
+      ],
+      "artifacts": [
+        "docs/agent-examples/b-initial.json",
+        "docs/agent-examples/b-initial-check.json"
+      ]
+    },
+    {
+      "id": "C-update",
+      "status": "passed",
+      "task": "The user adds a hard requirement: a desktop UI and import CLI may write concurrently on one machine without losing each other's changes.",
+      "observations": [
+        "Revision 3 preserved the earlier recommendation while recording the new requirement. Its actual ready check exited 2 and reported two missing assessments, two missing constraint checks, and a stale recommendation.",
+        "After reading official concurrency materials and revising the analysis, revision 4 passed the record check. The shortlist changed to SQLite as a route to implement and test, not as an already proven system.",
+        "The uncoordinated JSON alternative remained in the record with its explicit hard-constraint concern. SQLite's new constraint check remained unknown pending actual two-process testing, with conditions and next checks. Revision 2 remained readable."
+      ],
+      "artifacts": [
+        "docs/agent-examples/c-changed.json",
+        "docs/agent-examples/c-changed-check.json",
+        "docs/agent-examples/c-revised.json",
+        "docs/agent-examples/c-revised-check.json"
+      ]
+    }
+  ],
+  "friction": [
+    {
+      "observation": "A date-only retrievedAt value was rejected; the Agent corrected it after the path-specific error.",
+      "change": "The record guide now includes a full timestamp example and explains that date-only input is invalid."
+    },
+    {
+      "observation": "Criteria-only exports included six empty comparison/review sections.",
+      "change": "Empty sections are now omitted in criteria mode, while nonempty content and the full data appendix remain. Export regression tests cover both modes."
+    }
+  ],
+  "limits": [
+    "One independent Agent and two staged use cases with a follow-up change; no novice user study or measured decision-quality benefit.",
+    "Factual reasoning was manually inspected in these examples, not proven by the deterministic checker.",
+    "The Agent did not implement or benchmark either storage candidate. Ready means the research record is structurally complete with explicit uncertainties.",
+    "The complete JSON appendix is intentionally retained for reproducibility and can be verbose."
+  ]
+}

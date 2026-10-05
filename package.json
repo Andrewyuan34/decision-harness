@@ -1,0 +1,16 @@
+{
+  "name": "@andrewyuan34/decision-harness",
+  "version": "0.1.0",
+  "description": "Goal-first decision research tools and an Agent Skill",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "bin": { "decision-harness": "skills/decision-harness/scripts/cli.mjs" },
+  "files": ["skills/", "plugin.json", ".codex-plugin/", "docs/", "examples/", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "node scripts/verify.mjs",
+    "test:coverage": "node --test --experimental-test-coverage test/*.test.mjs"
+  },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Andrewyuan34/decision-harness.git" }
+}

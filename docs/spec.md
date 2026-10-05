@@ -39,7 +39,7 @@ Every requirement has an immutable ID. `docs/traceability.json` maps IDs to impl
 
 ## Record contract
 
-UTF-8 JSON. `schemaVersion: 1`. Unknown properties are errors, so misspelled fields are not silently ignored. Entity IDs match `[a-z][a-z0-9_-]{0,63}`. Arrays are editable; references must remain valid. Use strings in the user's language. Maximum input size 5 MiB. All timestamps are ISO 8601 strings. Validation allows an incomplete draft but not malformed types or broken references.
+UTF-8 JSON. `schemaVersion: 1`. Unknown properties are errors, so misspelled fields are not silently ignored. Entity IDs match `[a-z][a-z0-9_-]{0,63}`. Arrays are editable; references must remain valid. Use strings in the user's language. Maximum input and serialized snapshot size 5 MiB. All timestamps include a valid calendar date, time and timezone, for example `2026-10-05T09:30:00Z`; date-only input is rejected. Text must be nonblank except assessment uncertainty and unresolved-review response. Validation allows an incomplete draft but not malformed types or broken references.
 
 Top level:
 
@@ -55,7 +55,7 @@ Entity fields (all fields required unless noted; string lists may be empty):
 - objective: `id, text, origin (user|agent)`.
 - constraint: `id, text, kind (hard|preference), origin (user|agent)`.
 - assumption: `id, text, impact`.
-- criterion: `id, title, description, objectiveIds[], question, rationale, status (adopted|rejected), origin (library|user|agent), catalogId? (string), catalogVersion? (string)`.
+- criterion: `id, title, description, objectiveIds[], question, rationale, status (adopted|rejected), origin (library|user|agent), catalogId? (string), catalogVersion? (string)`. Library-origin entries require both catalog metadata fields.
 - alternative: `id, title, description`.
 - evidence: `id, title, location, kind (web|local|user|experiment), summary, retrievedAt`. Web locations must be HTTP(S); no tool automatically opens locations.
 - assessment: `id, alternativeId, criterionId, status (supported|mixed|concern|unknown), claimType (fact|estimate|judgment), rationale, evidenceIds[], uncertainty, basis?`. `basis` is a tool-managed dependency hash.
@@ -106,6 +106,8 @@ examples/                              explicitly labeled demonstration records
 ```
 
 Data stays in the user's chosen store, not the plugin installation. Persistence uses per-ID revisions, a lock and atomic publication; no global daemon. Schemas and deterministic logic are separately testable. Changes to a requirement update this spec and traceability in the same commit.
+
+Export refinement observed in first use: criteria-only reports omit empty sections while retaining nonempty content and the full record appendix. Screen reports keep empty sections visible. Templates also discard case-specific assumptions and rejected criteria; users must reconsider applicability in the new case.
 
 ## Verification and release gates
 

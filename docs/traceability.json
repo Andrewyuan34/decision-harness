@@ -1,0 +1,380 @@
+{
+  "schemaVersion": 1,
+  "requirements": [
+    {
+      "id": "DH-01",
+      "implementation": [
+        "plugin.json",
+        ".codex-plugin/plugin.json",
+        "skills/decision-harness/SKILL.md"
+      ],
+      "tests": [
+        {
+          "file": "test/package.test.mjs",
+          "titleIncludes": "DH-01"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-02",
+      "implementation": [
+        "skills/decision-harness/SKILL.md",
+        "skills/decision-harness/references/method.md"
+      ],
+      "tests": [],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "A-criteria"
+        },
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "B-screen"
+        },
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "C-update"
+        }
+      ]
+    },
+    {
+      "id": "DH-03",
+      "implementation": [
+        "skills/decision-harness/scripts/core.mjs",
+        "skills/decision-harness/SKILL.md"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-03"
+        },
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-03"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "A-criteria"
+        }
+      ]
+    },
+    {
+      "id": "DH-04",
+      "implementation": [
+        "skills/decision-harness/assets/catalog.json",
+        "skills/decision-harness/scripts/catalog.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/catalog.test.mjs",
+          "titleIncludes": "DH-04"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-05",
+      "implementation": [
+        "skills/decision-harness/scripts/catalog.mjs",
+        "skills/decision-harness/SKILL.md"
+      ],
+      "tests": [
+        {
+          "file": "test/catalog.test.mjs",
+          "titleIncludes": "DH-05"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "A-criteria"
+        }
+      ]
+    },
+    {
+      "id": "DH-06",
+      "implementation": [
+        "skills/decision-harness/scripts/catalog.mjs",
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/references/record-guide.md"
+      ],
+      "tests": [
+        {
+          "file": "test/catalog.test.mjs",
+          "titleIncludes": "DH-06"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "A-criteria"
+        }
+      ]
+    },
+    {
+      "id": "DH-07",
+      "implementation": [
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/scripts/core.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-07"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-08",
+      "implementation": [
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/scripts/core.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-08"
+        },
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-08"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "B-screen"
+        }
+      ]
+    },
+    {
+      "id": "DH-09",
+      "implementation": [
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/scripts/core.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-09"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-10",
+      "implementation": [
+        "skills/decision-harness/scripts/core.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-10"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "B-screen"
+        }
+      ]
+    },
+    {
+      "id": "DH-11",
+      "implementation": [
+        "skills/decision-harness/scripts/store.mjs",
+        "skills/decision-harness/scripts/core.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/store.test.mjs",
+          "titleIncludes": "DH-11"
+        },
+        {
+          "file": "test/cli.test.mjs",
+          "titleIncludes": "DH-11"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-12",
+      "implementation": [
+        "skills/decision-harness/scripts/store.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/store.test.mjs",
+          "titleIncludes": "DH-12"
+        },
+        {
+          "file": "test/cli.test.mjs",
+          "titleIncludes": "DH-12"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-13",
+      "implementation": [
+        "skills/decision-harness/scripts/core.mjs",
+        "skills/decision-harness/scripts/store.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-13"
+        },
+        {
+          "file": "test/store.test.mjs",
+          "titleIncludes": "DH-13"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "C-update"
+        }
+      ]
+    },
+    {
+      "id": "DH-14",
+      "implementation": [
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/scripts/core.mjs",
+        "skills/decision-harness/scripts/render.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-14"
+        },
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-14"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-15",
+      "implementation": [
+        "skills/decision-harness/scripts/render.mjs",
+        "skills/decision-harness/scripts/cli.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-15"
+        },
+        {
+          "file": "test/cli.test.mjs",
+          "titleIncludes": "DH-15"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-16",
+      "implementation": [
+        "skills/decision-harness/scripts/render.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-16"
+        },
+        {
+          "file": "test/cli.test.mjs",
+          "titleIncludes": "DH-16"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-17",
+      "implementation": [
+        "skills/decision-harness/scripts/cli.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/cli.test.mjs",
+          "titleIncludes": "DH-17"
+        },
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-17"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-18",
+      "implementation": [
+        "skills/decision-harness/scripts/core.mjs",
+        "skills/decision-harness/SKILL.md",
+        "skills/decision-harness/references/method.md"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-18"
+        }
+      ],
+      "behavior": [
+        {
+          "file": "docs/agent-validation.json",
+          "caseId": "B-screen"
+        }
+      ]
+    },
+    {
+      "id": "DH-19",
+      "implementation": [
+        "skills/decision-harness/scripts/errors.mjs",
+        "skills/decision-harness/scripts/schema.mjs",
+        "skills/decision-harness/scripts/store.mjs",
+        "skills/decision-harness/scripts/render.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/core.test.mjs",
+          "titleIncludes": "DH-19"
+        },
+        {
+          "file": "test/store.test.mjs",
+          "titleIncludes": "DH-19"
+        },
+        {
+          "file": "test/render.test.mjs",
+          "titleIncludes": "DH-19"
+        },
+        {
+          "file": "test/catalog.test.mjs",
+          "titleIncludes": "DH-19"
+        }
+      ],
+      "behavior": []
+    },
+    {
+      "id": "DH-20",
+      "implementation": [
+        "package.json",
+        ".github/workflows/ci.yml",
+        "scripts/verify.mjs",
+        "scripts/demo.mjs"
+      ],
+      "tests": [
+        {
+          "file": "test/package.test.mjs",
+          "titleIncludes": "DH-20"
+        }
+      ],
+      "behavior": []
+    }
+  ]
+}

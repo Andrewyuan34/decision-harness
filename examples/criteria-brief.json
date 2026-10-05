@@ -1,0 +1,33 @@
+{
+  "title": "演示：整理小工具的判断标准",
+  "prompt": "我想做一个自己能维护的小工具，先帮我弄清怎么判断方向，不用现在替我选项目。",
+  "question": "怎样判断一个小工具方向是否适合我继续调查？",
+  "mode": "criteria",
+  "domain": "general",
+  "objectives": [
+    { "id": "maintainable", "text": "自己能够持续维护", "origin": "user" },
+    { "id": "learn-criteria", "text": "先明确判断方法", "origin": "user" }
+  ],
+  "criteria": [
+    {
+      "id": "maintenance-effort",
+      "title": "每周维护工作是否可承担",
+      "description": "演示标准：了解依赖变化、故障排查和持续维护需要的时间。",
+      "objectiveIds": ["maintainable"],
+      "question": "有哪些持续维护任务，能否给出可核实的工作估计？",
+      "rationale": "对应用户希望自己能维护的目标；实际时间上限还需要明确。",
+      "status": "adopted",
+      "origin": "agent"
+    },
+    {
+      "id": "observable-benefit",
+      "title": "预期收益是否能具体观察",
+      "description": "演示标准：把模糊的好用转成可以调查或试用的现象。",
+      "objectiveIds": ["learn-criteria"],
+      "question": "什么实际结果会让用户认为该方向值得继续？",
+      "rationale": "让判断方法可以被解释和检查，不先替用户决定哪个项目获胜。",
+      "status": "adopted",
+      "origin": "agent"
+    }
+  ]
+}

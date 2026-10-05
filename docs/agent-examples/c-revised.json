@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "id": "storage-comparison",
+  "revision": 4,
+  "createdAt": "2026-10-05T07:13:04.448Z",
+  "updatedAt": "2026-10-05T07:20:45.456Z",
+  "title": "个人本地阅读笔记索引：JSON 文件与 SQLite",
+  "prompt": "我要做一个仅供自己用的本地阅读笔记索引，比较单个 JSON 文件和 SQLite 两种保存方案。希望可以离线、容易备份、尽量少依赖；目前只需要一个进程写，数据几千条。请调查公开的官方材料，给出有依据和不确定性说明的比较，保存结果。\n\n用户后续补充：我后来发现桌面界面和命令行导入程序可能会同时写入。同一台电脑上这两个进程不能丢掉彼此的更新；这条现在是必须满足的要求。原来的判断要怎么调整？之前的版本也帮我留着。",
+  "question": "在个人本地、几千条阅读笔记且桌面界面与命令行可能同时写入时，JSON 文件与 SQLite 怎样满足不能丢失彼此更新的硬要求？",
+  "mode": "screen",
+  "domain": "general",
+  "objectives": [
+    {
+      "id": "local-offline",
+      "text": "个人本地使用，希望离线仍能访问索引",
+      "origin": "user"
+    },
+    {
+      "id": "easy-backup",
+      "text": "备份和恢复容易理解、容易操作",
+      "origin": "user"
+    },
+    {
+      "id": "few-deps",
+      "text": "尽量减少额外依赖和维护负担",
+      "origin": "user"
+    },
+    {
+      "id": "useful-index",
+      "text": "支持几千条笔记的查找与更新",
+      "origin": "user"
+    },
+    {
+      "id": "safe-save",
+      "text": "保存中断时尽量避免损坏已存数据",
+      "origin": "agent"
+    },
+    {
+      "id": "keep-concurrent-updates",
+      "text": "同机桌面界面与命令行导入两个进程可能同时写入，不能丢掉彼此的更新。",
+      "origin": "user"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "personal-local",
+      "text": "本轮只比较个人在本机使用的存储，不引入远程数据库服务。",
+      "kind": "hard",
+      "origin": "user"
+    },
+    {
+      "id": "offline-preference",
+      "text": "希望断网时仍可读写本地索引。",
+      "kind": "preference",
+      "origin": "user"
+    },
+    {
+      "id": "backup-preference",
+      "text": "希望备份和恢复步骤少且清楚。",
+      "kind": "preference",
+      "origin": "user"
+    },
+    {
+      "id": "dependency-preference",
+      "text": "尽量少依赖；用户没有规定必须零依赖。",
+      "kind": "preference",
+      "origin": "user"
+    },
+    {
+      "id": "concurrent-no-lost-update",
+      "text": "同一台电脑两个进程可能同时写入；保存方案必须避免一个进程的保存覆盖另一个进程已经完成的更新。",
+      "kind": "hard",
+      "origin": "user"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "runtime-open",
+      "text": "开发语言和运行时尚未决定；Node.js 22.23.2 仅作为已查证的具体依赖示例。",
+      "impact": "不能把当前执行工具的 Node 版本当作用户产品已经选定的技术栈。"
+    },
+    {
+      "id": "search-open",
+      "text": "数据几千条已知，但总字节数、标签结构、中文全文搜索需求和更新频率未知。",
+      "impact": "不能仅凭条数给出速度结论；需要真实样本验证查询与保存时间。"
+    },
+    {
+      "id": "writers-cooperate",
+      "text": "暂按桌面界面和导入程序都由用户控制、可以遵循同一保存协议；尚未核对实际程序。",
+      "impact": "如果某个程序会绕过协议直接覆盖文件或数据库，方案层面的协调不能保证不丢更新。"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "offline",
+      "title": "断网时能在本地完成读写",
+      "description": "只评网络和服务依赖，安装维护另列。",
+      "objectiveIds": [
+        "local-offline"
+      ],
+      "question": "数据与读写操作是否留在本机？主要功能是否要求远程服务？",
+      "rationale": "按用户目标采用并收窄库中的依赖提示，避免与安装负担重复。",
+      "status": "adopted",
+      "origin": "library",
+      "catalogId": "general-dependencies",
+      "catalogVersion": "0.1.0"
+    },
+    {
+      "id": "setup",
+      "title": "接入与维护的额外负担",
+      "description": "比较所需运行时、库以及自己必须写的保存逻辑。",
+      "objectiveIds": [
+        "few-deps"
+      ],
+      "question": "选定语言后需要额外装什么，哪些逻辑仍需自己维护？",
+      "rationale": "依赖数量只是线索，不等于负担大小；SQLite 引擎存在不意味着每种语言都要再装第三方包。",
+      "status": "adopted",
+      "origin": "library",
+      "catalogId": "general-maintenance",
+      "catalogVersion": "0.1.0"
+    },
+    {
+      "id": "backup",
+      "title": "能制作并恢复完整备份",
+      "description": "比较暂停写入时及运行中的备份方法，并注意附属日志。",
+      "objectiveIds": [
+        "easy-backup"
+      ],
+      "question": "怎样得到一致的备份？恢复后如何确认笔记条数和内容完整？",
+      "rationale": "从用户备份目标形成，重点是能恢复而不只是复制出一个文件。",
+      "status": "adopted",
+      "origin": "agent"
+    },
+    {
+      "id": "save-integrity",
+      "title": "写入中断后的数据完整性",
+      "description": "区分正常保存成功与中途退出、故障时的行为。",
+      "objectiveIds": [
+        "safe-save"
+      ],
+      "question": "更新一部分数据时中断会留下什么？谁负责避免半写文件并恢复？",
+      "rationale": "这是 Agent 补充的相关目标，因用户索引会持续更新而采用，不把一般风险自动当作淘汰规则。",
+      "status": "adopted",
+      "origin": "agent"
+    },
+    {
+      "id": "query-fit",
+      "title": "查询与更新方式符合这批笔记",
+      "description": "比较简单筛选和组合查询的表达方式；实际速度留待样本验证。",
+      "objectiveIds": [
+        "useful-index"
+      ],
+      "question": "现有查询是简单关键词匹配还是标签与日期组合？需要全文分词吗？几千条实际内容有多大？",
+      "rationale": "数据规模不能直接决定赢家；先确认任务，再评实现复杂度和实际表现。",
+      "status": "adopted",
+      "origin": "agent"
+    },
+    {
+      "id": "concurrent-updates",
+      "title": "两个进程的更新不会互相覆盖",
+      "description": "检查两边读旧数据、修改和保存重叠时如何协调，以及冲突、等待或重试怎样处理；不能只看最后文件格式是否完整。",
+      "objectiveIds": [
+        "keep-concurrent-updates"
+      ],
+      "question": "两个程序从同一旧状态开始写入时，会不会覆盖另一方已完成的更新？需要锁、事务或冲突检测中的哪些措施？",
+      "rationale": "用户把两个进程不丢更新升级为必须满足的要求；它与断电后的文件完整性不同，单独检查。",
+      "status": "adopted",
+      "origin": "user"
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "json-file",
+      "title": "单个 JSON 文件",
+      "description": "原方案：两个应用各自读取、修改并保存同一个 JSON 文档，可以临时文件替换和保留副本，但尚无跨进程协调协议。本次评估这一原方案；补上可靠跨进程锁、整段读改写协调与冲突处理的 JSON 属于需重新验证的扩展方案。"
+    },
+    {
+      "id": "sqlite",
+      "title": "SQLite 本地数据库文件",
+      "description": "SQLite 本地数据库文件，由两个程序分别连接，通过短事务与数据库写锁协调保存；另需处理界面旧内容的版本冲突及忙碌错误。该设计是待实现和验证的方案，不是现有程序已经合格。"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "user-brief",
+      "title": "用户给出的范围与偏好",
+      "location": "task-b:original-prompt",
+      "kind": "user",
+      "summary": "个人本地阅读笔记索引，几千条，一个进程写；希望离线、容易备份、尽量少依赖。没有指定语言、查询类型、总字节数、备份频率或允许丢失的更新量。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "node-fs",
+      "title": "Node.js 22 文件系统官方文档",
+      "location": "https://nodejs.org/docs/latest-v22.x/api/fs.html",
+      "kind": "web",
+      "summary": "文件 API 可以读取与写入本地文件；readFile 会缓冲整个文件。writeFile 默认替换已有文件，由多次底层写入组成；同一文件连续异步写入必须等待上次完成。取消写入可能仍留下部分数据；flush 默认关闭。文档不承诺直接覆盖一个 JSON 文件具备数据库事务效果。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "sqlite-uses",
+      "title": "SQLite 适用场景官方说明",
+      "location": "https://www.sqlite.org/whentouse.html",
+      "kind": "web",
+      "summary": "SQLite 面向应用和设备的本地存储，适合作为桌面应用文件格式；不需要单独数据库管理服务。可用 SQL 进行筛选、排序，避免手工编写全部查询逻辑；同一数据库同一时刻只允许一个写入者。页面没有测试本用户几千条笔记的性能。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "sqlite-file",
+      "title": "SQLite 单文件格式官方说明",
+      "location": "https://www.sqlite.org/onefile.html",
+      "kind": "web",
+      "summary": "稳定数据库使用可跨平台的单个数据库文件；事务控制可能创建额外日志。因此单文件描述不应被理解为任何运行状态都只需复制主文件。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "sqlite-backup",
+      "title": "SQLite 备份 API 官方说明",
+      "location": "https://www.sqlite.org/backup.html",
+      "kind": "web",
+      "summary": "提供可在数据库运行期间分步备份的 Online Backup API；也介绍 VACUUM INTO 生成备份副本。应用需要检查备份是否成功，不能只凭目标文件存在判断可恢复。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "sqlite-wal",
+      "title": "SQLite WAL 官方说明",
+      "location": "https://www.sqlite.org/wal.html",
+      "kind": "web",
+      "summary": "WAL 模式中，-wal 日志是数据库持久状态的一部分；将主文件与该日志分离可能丢失已提交内容或损坏数据库。本文因此建议使用正式备份 API，而非运行中任意只复制主文件。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "sqlite-atomic",
+      "title": "SQLite 原子提交官方说明",
+      "location": "https://www.sqlite.org/atomiccommit.html",
+      "kind": "web",
+      "summary": "SQLite 通过日志、刷盘和恢复过程，让事务表现为全部完成或未完成。该机制依赖存储与操作系统行为；这里不推导为所有配置、硬件故障下绝不丢数据。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "node-sqlite",
+      "title": "Node.js v22.23.2 内建 SQLite 官方文档",
+      "location": "https://nodejs.org/download/release/v22.23.2/docs/api/sqlite.html",
+      "kind": "web",
+      "summary": "这一具体版本内置 node:sqlite，可打开文件数据库并执行 SQL，无需把第三方数据库驱动当成必选。文档把模块列为 Stability 1.1（仍在积极开发），并列出内建 backup 方法。此证据仅说明该运行时实例，不代表用户已选择 Node.js 或所有运行时都内建 SQLite。",
+      "retrievedAt": "2026-10-05T07:15:08Z"
+    },
+    {
+      "id": "user-concurrent-change",
+      "title": "用户新增两个进程并发写入硬要求",
+      "location": "task-b:follow-up-concurrent-writers",
+      "kind": "user",
+      "summary": "原文：我后来发现桌面界面和命令行导入程序可能会同时写入。同一台电脑上这两个进程不能丢掉彼此的更新；这条现在是必须满足的要求。原来的判断要怎么调整？之前的版本也帮我留着。",
+      "retrievedAt": "2026-10-05T07:17:38Z"
+    },
+    {
+      "id": "node-fs-concurrency",
+      "title": "Node 文件 API 的并发修改与竞争说明",
+      "location": "https://nodejs.org/docs/latest-v22.x/api/fs.html",
+      "kind": "web",
+      "summary": "官方说明文件异步 API 不自动同步多个修改；先检查文件再读写会有跨进程竞争。wx 可以在路径已存在时失败，但这一个操作本身不是完整的读改写协调、锁恢复或更新合并协议。",
+      "retrievedAt": "2026-10-05T07:18:42Z"
+    },
+    {
+      "id": "sqlite-isolation",
+      "title": "SQLite 跨连接与跨进程隔离",
+      "location": "https://www.sqlite.org/isolation.html",
+      "kind": "web",
+      "summary": "不同进程中的连接也受隔离规则约束；SQLite 用锁使写入轮流执行。WAL 中旧读快照升级写入可能遇到 SQLITE_BUSY_SNAPSHOT；BEGIN IMMEDIATE 在读改写开始时先取得写事务，其他写入者需等待。该说明不保证事务之外读出的旧界面内容可直接覆盖最新记录。",
+      "retrievedAt": "2026-10-05T07:18:42Z"
+    },
+    {
+      "id": "sqlite-transactions",
+      "title": "SQLite 事务与忙碌错误官方说明",
+      "location": "https://www.sqlite.org/lang_transaction.html",
+      "kind": "web",
+      "summary": "支持多个读事务但一次只允许一个写事务；BEGIN IMMEDIATE 遇到已有写事务会返回 SQLITE_BUSY。应用必须正确处理事务错误；部分 COMMIT 忙碌错误可重试，错误处理不能被当作保存成功。文档区分自动单条语句事务与显式覆盖多条语句的事务。",
+      "retrievedAt": "2026-10-05T07:18:42Z"
+    }
+  ],
+  "assessments": [
+    {
+      "id": "json-offline",
+      "alternativeId": "json-file",
+      "criterionId": "offline",
+      "status": "supported",
+      "claimType": "fact",
+      "rationale": "索引文件及读写都可以放在本机，文件读写本身不需要网络服务。",
+      "evidenceIds": [
+        "node-fs"
+      ],
+      "uncertainty": "尚未实现应用；如果另加云端检索等功能，需单独评估，不能由本地存储推断整个产品离线。",
+      "basis": "43427a8a04c99d8df0528eda829a260f4ef048b9b6c36a4d53708a04b9ca98f2"
+    },
+    {
+      "id": "sqlite-offline",
+      "alternativeId": "sqlite",
+      "criterionId": "offline",
+      "status": "supported",
+      "claimType": "fact",
+      "rationale": "SQLite 是嵌入应用的本地存储，适合这次本机使用范围，无需远程数据库服务器。",
+      "evidenceIds": [
+        "sqlite-uses"
+      ],
+      "uncertainty": "结论覆盖存储层；未验证未来应用其它功能。",
+      "basis": "919fa01e7f91cd3fec6f2971b9ec42df05c9f01ae523eeb5f1e9814edccee342"
+    },
+    {
+      "id": "json-setup",
+      "alternativeId": "json-file",
+      "criterionId": "setup",
+      "status": "concern",
+      "claimType": "judgment",
+      "rationale": "新增硬要求后，仅普通文件读写不足以完成方案：还要把跨进程协调、整段读改写、锁异常恢复和冲突处理做完整。依赖少的表面优势不能代表总体实现负担更低。",
+      "evidenceIds": [
+        "node-fs",
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "uncertainty": "本轮未设计或验证具体文件锁协议，不能估算这部分工时；第三方可靠协调方案也尚未比较。",
+      "basis": "0987ec1a87ce6d0ede746d67c2152189ac71d455de3cc372ede003da6c56a1dc"
+    },
+    {
+      "id": "sqlite-setup",
+      "alternativeId": "sqlite",
+      "criterionId": "setup",
+      "status": "mixed",
+      "claimType": "judgment",
+      "rationale": "SQLite 已提供跨进程写入协调，减少自己维护文件级锁协议的工作；应用仍需正确使用短事务、处理忙碌错误，并检查旧界面提交的版本。部分运行时可内建 SQLite。",
+      "evidenceIds": [
+        "sqlite-isolation",
+        "sqlite-transactions",
+        "node-sqlite"
+      ],
+      "uncertainty": "用户语言和界面保存流程未选定；Node 示例的 API 仍积极开发，接入成本不能定量承诺。",
+      "basis": "80d0b98dc3919bf6561b67ff3ffec14b0fb90ecc5d4c15e6355b0b04cbb87cb5"
+    },
+    {
+      "id": "json-backup",
+      "alternativeId": "json-file",
+      "criterionId": "backup",
+      "status": "mixed",
+      "claimType": "judgment",
+      "rationale": "原先暂停写入后复制完整文件的思路仍可行，但现在必须协调两个程序都停止或进入同一备份协议；只暂停界面而导入程序继续写不够。",
+      "evidenceIds": [
+        "node-fs",
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "uncertainty": "尚未实现双方协调和恢复演练；文件存在不代表拿到了完整、最新的一份备份。",
+      "basis": "5909dde84f3d49db9d5f5a871af1c225ebdbfde7599a88500eea5a1242831f9e"
+    },
+    {
+      "id": "sqlite-backup",
+      "alternativeId": "sqlite",
+      "criterionId": "backup",
+      "status": "mixed",
+      "claimType": "judgment",
+      "rationale": "正式备份 API 仍适用；有两个写入进程后更应使用数据库提供的备份方式，避免自行复制正变化的主文件或漏掉 WAL 日志。",
+      "evidenceIds": [
+        "sqlite-backup",
+        "sqlite-wal",
+        "user-concurrent-change"
+      ],
+      "uncertainty": "具体绑定、日志模式和并发备份策略待实现验证；没有实际恢复演练。",
+      "basis": "13afd0be97970aaf12aca1fcb0393c6e928da1a848b7d3624887573193d0163e"
+    },
+    {
+      "id": "json-integrity",
+      "alternativeId": "json-file",
+      "criterionId": "save-integrity",
+      "status": "concern",
+      "claimType": "judgment",
+      "rationale": "直接覆盖 JSON 的中断风险仍存在，跨进程并发又增加风险。即使临时文件替换做到最终文件完整，也不证明另一个进程的更新被保留；后者在新并发标准单独核对。",
+      "evidenceIds": [
+        "node-fs",
+        "node-fs-concurrency"
+      ],
+      "uncertainty": "文件完整与更新不丢是不同要求；本轮未验证具体保存和跨进程协议。",
+      "basis": "774d0100caccecfeafbda62992f759728690b9249b332857b499cef838ca9a4d"
+    },
+    {
+      "id": "sqlite-integrity",
+      "alternativeId": "sqlite",
+      "criterionId": "save-integrity",
+      "status": "supported",
+      "claimType": "fact",
+      "rationale": "事务日志和恢复机制仍支持把一组保存作为整体处理；这个结论只说明存储事务完整性。界面将过时内容重新写回的逻辑错误还需另外防止。",
+      "evidenceIds": [
+        "sqlite-atomic",
+        "sqlite-isolation"
+      ],
+      "uncertainty": "依赖正确配置和错误处理；事务以外的旧数据覆盖不因使用 SQLite 自动消失。",
+      "basis": "7d2b7fc132add2ddbfc41cd95b00c4c45732d37c5a18cff195f1d2c878715fd7"
+    },
+    {
+      "id": "json-query",
+      "alternativeId": "json-file",
+      "criterionId": "query-fit",
+      "status": "unknown",
+      "claimType": "estimate",
+      "rationale": "可以读入整个文件后由应用筛选；真实查找速度、内存与保存耗时未知，缺少总字节数、查询样例及测量。几千条不等于已经证明够快或太慢。",
+      "evidenceIds": [
+        "node-fs",
+        "user-brief"
+      ],
+      "uncertainty": "需要几条真实查找任务和接近实际体量的样本，尤其要确认是否有很长正文或附件。",
+      "basis": "88f4ed08090fbf6bc3156d12704b8e76eebdff90d0a5739b5641dc9de0eae861"
+    },
+    {
+      "id": "sqlite-query",
+      "alternativeId": "sqlite",
+      "criterionId": "query-fit",
+      "status": "unknown",
+      "claimType": "estimate",
+      "rationale": "SQLite 已提供 SQL 筛选排序能力，适合表达组合条件；但本项目速度及中文全文搜索效果未测，不能由数据库名称推断。",
+      "evidenceIds": [
+        "sqlite-uses",
+        "user-brief"
+      ],
+      "uncertainty": "未知查询组合、索引设置、文本大小和是否需要中文分词；不默认承诺全文搜索效果。",
+      "basis": "3e6e610c469411cf73a5bfc8beba5e70c151354ad3bb2377f1348d820deb4916"
+    },
+    {
+      "id": "json-concurrent",
+      "alternativeId": "json-file",
+      "criterionId": "concurrent-updates",
+      "status": "concern",
+      "claimType": "judgment",
+      "rationale": "当前无跨进程协调的方案违反新硬要求。可推演反例：两边读同一旧文件，A 加一条并保存，B 再用自己旧副本加另一条并保存，A 的更新消失。即使每次替换都是完整文件，这个反例仍成立。此为推理案例，不是已运行实验。",
+      "evidenceIds": [
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "uncertainty": "JSON 格式本身不是不可能；需补可靠跨进程协调，覆盖读取最新数据到保存的整段操作，处理退出和冲突，再重新验证。",
+      "basis": "88880678efc548e688f3bda1a137df29bf010e318afa2e8db724c3bdfa69388b"
+    },
+    {
+      "id": "sqlite-concurrent",
+      "alternativeId": "sqlite",
+      "criterionId": "concurrent-updates",
+      "status": "mixed",
+      "claimType": "judgment",
+      "rationale": "SQLite 能让不同进程的写事务轮流进行，适合形成满足新要求的设计。读取当前状态并计算修改应放进受保护的短事务；旧界面内容还应检查版本，冲突时保留修改并明确提示，不静默覆盖。忙碌或失败必须正确重试或返回未保存，不能吞掉。",
+      "evidenceIds": [
+        "sqlite-isolation",
+        "sqlite-transactions",
+        "user-concurrent-change"
+      ],
+      "uncertainty": "能力有官方依据，但两个真实程序尚未实现并验证；若同一笔记同一字段冲突，具体合并方式待用户确定，当前只要求保留双方修改并报告冲突。",
+      "basis": "eae547e7f52984ab49fdcd340cd92177a63876dfe270f6a767ef29da8cdb1472"
+    }
+  ],
+  "constraintChecks": [
+    {
+      "id": "json-file-local",
+      "alternativeId": "json-file",
+      "constraintId": "personal-local",
+      "status": "met",
+      "rationale": "存储方案本身可放在本机供个人应用使用；此处为能力核对，不是已完成产品验收。",
+      "evidenceIds": [
+        "node-fs"
+      ],
+      "basis": "beb985ca159759bfa236c8ab9acdfc656e2e5db1131c693120fa9f10defb322b"
+    },
+    {
+      "id": "json-file-offline-check",
+      "alternativeId": "json-file",
+      "constraintId": "offline-preference",
+      "status": "met",
+      "rationale": "本地存储读写不要求网络连接；应用将来附加的联网功能不在此结论内。",
+      "evidenceIds": [
+        "node-fs"
+      ],
+      "basis": "6452d90a70abe8fda9f7c3c15a86154a3c457edf37e49a6ae98a4c32d1bf8fe9"
+    },
+    {
+      "id": "json-file-backup-check",
+      "alternativeId": "json-file",
+      "constraintId": "backup-preference",
+      "status": "unknown",
+      "rationale": "现在需同时协调两个写入程序才能按暂停写入方式备份；恢复体验及操作负担未验证。",
+      "evidenceIds": [
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "basis": "b0741b5dd5cde5ace73e6f58cde24846f3e816ad0bcda5442d14dec2a6852da0"
+    },
+    {
+      "id": "json-file-deps-check",
+      "alternativeId": "json-file",
+      "constraintId": "dependency-preference",
+      "status": "unknown",
+      "rationale": "JSON 不需要数据库引擎，但新增跨进程协调与异常恢复的代码负担未确定，不能据此称整体更简单。",
+      "evidenceIds": [
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "basis": "aa248a7de1113cd73ba50edc6c96c5f7b813305508c030f85f68b17aec24a9b3"
+    },
+    {
+      "id": "sqlite-local",
+      "alternativeId": "sqlite",
+      "constraintId": "personal-local",
+      "status": "met",
+      "rationale": "存储方案本身可放在本机供个人应用使用；此处为能力核对，不是已完成产品验收。",
+      "evidenceIds": [
+        "sqlite-uses"
+      ],
+      "basis": "10eb13825c712a7b1d296bfe361776f859e7fe1142fc72e8edda324ff0b3b622"
+    },
+    {
+      "id": "sqlite-offline-check",
+      "alternativeId": "sqlite",
+      "constraintId": "offline-preference",
+      "status": "met",
+      "rationale": "本地存储读写不要求网络连接；应用将来附加的联网功能不在此结论内。",
+      "evidenceIds": [
+        "sqlite-uses"
+      ],
+      "basis": "4e2d447bb0a3b876330e246007489fb3e0ca3c342d8cfc1379f4ddb2d63675bf"
+    },
+    {
+      "id": "sqlite-backup-check",
+      "alternativeId": "sqlite",
+      "constraintId": "backup-preference",
+      "status": "unknown",
+      "rationale": "官方备份机制存在，但双进程写入期间的实际备份及恢复体验尚未试用。",
+      "evidenceIds": [
+        "sqlite-backup",
+        "user-concurrent-change"
+      ],
+      "basis": "4a36c44beae8377ebb3edfd087ed9c168be2e7bfb7557627d8cf0236d90c434e"
+    },
+    {
+      "id": "sqlite-deps-check",
+      "alternativeId": "sqlite",
+      "constraintId": "dependency-preference",
+      "status": "unknown",
+      "rationale": "有内建 SQLite 的运行时且引擎提供写协调，但用户运行时和事务接入工作尚未确定。",
+      "evidenceIds": [
+        "node-sqlite",
+        "sqlite-isolation"
+      ],
+      "basis": "5efc0450c2279013171ea8ff9449a6c49e454612c648a1398c1ea30132dcf828"
+    },
+    {
+      "id": "json-concurrent-check",
+      "alternativeId": "json-file",
+      "constraintId": "concurrent-no-lost-update",
+      "status": "violated",
+      "rationale": "按当前候选定义，各进程独立读改写同一 JSON，没有跨进程协调；存在后保存者覆盖先保存者更新的直接反例。尚未把补锁的扩展方案算作已经完成，因此不将当前 JSON 方案列入推荐。",
+      "evidenceIds": [
+        "node-fs-concurrency",
+        "user-concurrent-change"
+      ],
+      "basis": "c8c80e4b80fbdc6d02ba4d6993ebe46d89e865c8b569308a9fdb7847ee64ab56"
+    },
+    {
+      "id": "sqlite-concurrent-check",
+      "alternativeId": "sqlite",
+      "constraintId": "concurrent-no-lost-update",
+      "status": "unknown",
+      "rationale": "SQLite 提供跨进程串行写事务的机制，但是否满足完整用户要求还取决于两个程序的事务范围、旧版本检查、冲突保留和错误处理；当前尚无这两个程序的并发验收结果。推荐仅为优先验证路线。",
+      "evidenceIds": [
+        "sqlite-isolation",
+        "sqlite-transactions",
+        "user-concurrent-change"
+      ],
+      "basis": "652a45f5b7a2fc6cdece4bf91d4f8c020bdd8f466c70f4b4af53bb3b26b1821d"
+    }
+  ],
+  "recommendation": {
+    "alternativeIds": [
+      "sqlite"
+    ],
+    "rationale": "新增必须满足的并发要求后，优先验证 SQLite。原先仅靠两个程序分别读写同一个 JSON 的方案退出本轮推荐，因为能具体解释它怎样丢更新。SQLite 的写协调有官方依据，但本次只推荐它作为实现和验证路线，不把数据库名称当成已满足保证；带完善跨进程协议的 JSON 可在以后作为扩展方案重新比较。",
+    "tradeoffs": [
+      "SQLite 让写入轮流执行，两个程序仍可同时运行；不要求存储系统同时执行两笔写入。",
+      "应用必须处理旧界面提交、忙碌和失败；把一份过期整条记录直接写回，即使用 SQLite 也可能丢另一方的逻辑修改。",
+      "JSON 仍能通过额外协调设计变得可行，但现在的开发负担与待验证内容更多，不能沿用此前单写入者下的简单性判断。",
+      "离线、备份与查询需求仍保留；实际速度及备份体验未实测。"
+    ],
+    "conditions": [
+      "桌面界面和命令行都连接同一台电脑上的同一数据库，并遵循共同保存协议。",
+      "需要先读取再计算修改的操作，使用覆盖整个过程的短写事务，例如 BEGIN IMMEDIATE 后读取最新状态、计算并提交；遇到忙碌正确等待或重试。",
+      "长时间编辑的界面不能拿旧副本无条件覆盖：提交时核对记录版本或比较已修改字段；冲突时保留双方内容并明确提示，等待确定合并规则。",
+      "只有提交成功才报告已保存；失败重试要基于最新状态，并避免重复导入。",
+      "双进程不丢更新的实际验收通过后，才能把新硬约束从 unknown 改为 met。"
+    ],
+    "nextChecks": [
+      "同时运行两个程序：从相同初始状态各新增不同记录，确认两条都存在；改变执行顺序重复。",
+      "同时修改同一笔记不同字段，确认不会用整条旧对象盖掉另一字段；同时改同一字段，确认保留冲突内容而非悄悄覆盖。",
+      "让一个进程持有写事务，另一个遇到忙碌，再核对重试或失败提示、最终记录和是否重复导入。",
+      "中断其中一个进程，检查另一进程继续保存及重启后的记录；本轮未执行这项真实程序试验。",
+      "在两进程运行时执行备份并恢复到独立副本，检查内容与预期；继续确认实际语言、数据库版本和保存接口。"
+    ],
+    "basis": "20cbc569209a0a3da870e50da1ca3f311791d4aff6c93de4c4e36e02ca1dd22e"
+  },
+  "reviews": []
+}

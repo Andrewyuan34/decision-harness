@@ -1,0 +1,7 @@
+{
+  "name": "decision-harness",
+  "version": "0.1.0",
+  "description": "Goal-first criteria discovery and evidence-backed comparisons with local revision tools.",
+  "author": { "name": "Andrewyuan34", "url": "https://github.com/Andrewyuan34" },
+  "skills": "./skills/"
+}
