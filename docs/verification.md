@@ -1,6 +1,6 @@
 # v0.1 验证记录
 
-验证日期：2026-10-05。本地及独立 Agent 验收完成；远程跨平台 CI 正在进行，未完成前不记为通过。
+验证日期：2026-10-05。本地、独立 Agent 使用和远程跨平台检查均已通过。
 
 ## 怎样开始的
 
@@ -35,7 +35,16 @@ Windows，Node.js 22.23.2：`npm test` **54 项通过、0 失败、0 跳过**。
 
 ## 跨平台状态
 
-远程矩阵：Windows / Ubuntu × Node.js 22 / 24。结果待本次推送后的 [GitHub Actions](https://github.com/Andrewyuan34/decision-harness/actions) 完成后补记。
+实现提交 `53360b4115b0ab439e71b524f4ba61fc5e05b5e6` 的 [GitHub Actions 运行 37277583097](https://github.com/Andrewyuan34/decision-harness/actions/runs/37277583097) 已成功完成，四组均执行了完整测试和需求追踪检查：
+
+| 环境 | 测试 | 追踪检查 |
+| --- | --- | --- |
+| Ubuntu / Node.js 22 | 通过 | 通过 |
+| Ubuntu / Node.js 24 | 通过 | 通过 |
+| Windows / Node.js 22 | 通过 | 通过 |
+| Windows / Node.js 24 | 通过 | 通过 |
+
+这同时包含在对应平台上打包、离线安装、启动命令入口和独立复制 Skill 的检查。后续文档更新也由同一工作流检查，最新结果可在 [Actions 列表](https://github.com/Andrewyuan34/decision-harness/actions) 查看。
 
 ## 能证明和不能证明的事
 
